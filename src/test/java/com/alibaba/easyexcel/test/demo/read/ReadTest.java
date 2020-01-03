@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -53,9 +54,7 @@ public class ReadTest {
         EasyExcel.read(fileName, DemoData.class, new DemoDataListener()).sheet().doRead();
 
 
-        /**
-         * 每一行数据封装到一个对象
-         */
+        // 每一行数据封装到一个对象
         List<DemoData> objects = EasyExcel.read(fileName, DemoData.class, new DemoDataListener()).sheet().doReadSync();
 
         System.out.println("-------------------------------------------------------");
