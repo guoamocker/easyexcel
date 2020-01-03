@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,12 +41,16 @@ public class ReadTest {
      */
     @Test
     public void simpleRead() {
-        System.out.println("-------------------------------------------------------");
+        // 获取线程名称
+        Thread.currentThread().getName();
 
-        System.out.println(ReadTest.class.getResource("/").getPath());
-        System.out.println(ReadTest.class.getResource("/"));
 
-        System.out.println("-------------------------------------------------------");
+        LOGGER.info("getPath------------:::{}", ReadTest.class.getResource("/").getPath());
+        LOGGER.info("getResource------------:::{}", ReadTest.class.getResource("/"));
+
+        System.out.println();
+        System.out.println();
+
 
         // 有个很重要的点 DemoDataListener 不能被spring管理，要每次读取excel都要new,然后里面用到spring可以构造方法传进去
         // 写法1：
@@ -54,14 +59,13 @@ public class ReadTest {
         EasyExcel.read(fileName, DemoData.class, new DemoDataListener()).sheet().doRead();
 
 
+
         // 每一行数据封装到一个对象
+        List<Object> datas = EasyExcelFactory.read(fileName, DemoData.class, new DemoDataListener()).sheet().doReadSync();
         List<DemoData> objects = EasyExcel.read(fileName, DemoData.class, new DemoDataListener()).sheet().doReadSync();
 
-        System.out.println("-------------------------------------------------------");
-
-        System.out.println(objects);
-
-        System.out.println("-------------------------------------------------------");
+        LOGGER.info("[EasyExcel.read(fileName, DemoData.class, new DemoDataListener()).sheet().doReadSync()]------------:::{}", objects);
+        LOGGER.info("[EasyExcelFactory.read(fileName, DemoData.class, new DemoDataListener()).sheet().doReadSync()]------------:::{}", datas);
 
         // 写法2：
         fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
@@ -100,14 +104,15 @@ public class ReadTest {
      */
     @Test
     public void repeatedRead() {
-        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         // 读取全部sheet
         // 这里需要注意 DemoDataListener的doAfterAllAnalysed 会在每个sheet读取完毕后调用一次。然后所有sheet都会往同一个DemoDataListener里面写
+        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         EasyExcel.read(fileName, DemoData.class, new DemoDataListener()).doReadAll();
 
         // 读取部分sheet
         fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         ExcelReader excelReader = EasyExcel.read(fileName).build();
+
         // 这里为了简单 所以注册了 同样的head 和Listener 自己使用功能必须不同的Listener
         ReadSheet readSheet1 =
             EasyExcel.readSheet(0).head(DemoData.class).registerReadListener(new DemoDataListener()).build();
